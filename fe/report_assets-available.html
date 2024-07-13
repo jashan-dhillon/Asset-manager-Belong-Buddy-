@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Table Data Example</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding-top: 20px;
+        padding-left: 100px;
+        padding-right: 100px;
+        padding-bottom: 100px;
+
+        
+        background: linear-gradient(49deg, rgba(10, 49, 51, 0.74),rgba(17, 99, 88, 0.674),rgba(8, 118, 151, 0.533),rgba(6, 25, 82, 0.619),rgba(83, 4, 126, 0.533)); /* Container background color */
+        background-size: 300% 300%;
+        animation: color 12s ease-in-out infinite; /* Set background color */
+    }
+    @keyframes color{
+    0%{
+        background-position: 0 50%;
+    }
+    50%{
+        background-position: 100% 50%;
+    }
+    100%{
+        background-position: 0 50%;
+    }
+}
+        /* Table styles */
+        #dataTable {
+            width: 80%;
+            margin: 0 auto;
+            border-collapse: collapse;
+        }
+
+        #dataTable th, #dataTable td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+
+        #dataTable th {
+            background-color: #dad9d9fb;
+        }
+
+        /* Center-align the table */
+        #dataTable {
+            margin: auto;
+            background-color: #f2f2f2;
+        }
+
+        /* Title style */
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+            background-color: #f2f2f2;
+            margin-left: 160px;
+            margin-right: 160px;
+            border-radius: 5px;
+            padding: 5px 0px;
+        }
+
+        /* Date style */
+        #reportDate {
+            text-align: center;
+            font-size: smaller;
+            background-color: #f2f2f2;
+            margin-left: 130px;
+            margin-right: 130px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            padding: 5px 0px;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Available Assets Report</h2>
+<div id="reportDate"></div>
+
+<table id="dataTable">
+    <thead>
+        <!-- Table headers will be dynamically generated -->
+    </thead>
+    <tbody>
+        <!-- Table rows will be dynamically generated -->
+    </tbody>
+</table>
+
+<script>
+    
+    // Function to get the current date and time in the format "YYYY-MM-DD HH:MM:SS"
+    function getCurrentDateTime() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = (now.getMonth() + 1).toString().padStart(2, '0');
+    var day = now.getDate().toString().padStart(2, '0');
+    var hours = now.getHours();
+    var amPM = hours >= 12 ? 'PM' : 'AM';
+    hours = (hours % 12) || 12; // Convert to 12-hour format
+    var minutes = now.getMinutes().toString().padStart(2, '0');
+    var seconds = now.getSeconds().toString().padStart(2, '0');
+    return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds + ' ' + amPM;
+    }
+
+    $(document).ready(function() {
+        // Set the current date below the report title
+        $('#reportDate').text('Date: ' + getCurrentDateTime());
+
+        // Make AJAX request to fetch table data
+        $.ajax({
+            url: '../be/report_asset_available.jsp',
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                // Clear existing table headers and rows
+                $('#dataTable thead').empty();
+                $('#dataTable tbody').empty();
+                
+
+                console.log(data);
+                // Populate table with fetched data
+                if (data.length > 0) {
+                    // Generate table headers from the first object in the data array
+                    var headers = Object.keys(data[0]);
+                    var headerRow = '<tr>';
+                    $.each(headers, function(index, header) {
+                        headerRow += '<th>' + header + '</th>';
+                    });
+                    headerRow += '</tr>';
+                    $('#dataTable thead').append(headerRow);
+
+                    // Generate table rows from all objects in the data array
+                    $.each(data, function(index, item) {
+                        var row = '<tr>';
+                        $.each(item, function(key, value) {
+                            row += '<td>' + value + '</td>';
+                        });
+                        row += '</tr>';
+                        $('#dataTable tbody').append(row);
+                    });
+                } else {
+                    // No data available, display a message or handle as needed
+                    $('#dataTable tbody').append('<tr><td colspan="' + headers.length + '">No data available</td></tr>');
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error('Error fetching table data:', error);
+            }
+        });
+    });
+</script>
+
+</body>
+</html>

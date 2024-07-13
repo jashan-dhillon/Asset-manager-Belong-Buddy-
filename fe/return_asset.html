@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Asset return</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding-top: 170px;
+        padding-right: 270px;
+        padding-left: 270px;
+        padding-bottom: 270px;
+        background-size: 500% 500%;
+        background: linear-gradient(49deg, rgba(10, 49, 51, 0.74),rgba(17, 99, 88, 0.674),rgba(8, 118, 151, 0.533),rgba(6, 25, 82, 0.619),rgba(83, 4, 126, 0.533)); /* Container background color */
+    }
+    .container {
+        max-width: 400px;
+        margin: 0 auto;
+        background-color: #fff; /* Container background color */
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Add shadow effect */
+        text-align: center;
+    }
+
+    .container label,
+    .container select {
+        display: block;
+        margin: 0 auto;
+    }
+
+    .container select {
+        width: 40%; /* Make the dropdown wider */
+        height: 30px; /* Increase the height of the dropdown */
+        padding: 5px; /* Add some padding */
+        box-sizing: border-box; /* Include padding in width/height calculation */
+        margin-bottom: 5px; /* Add some space below the dropdown */
+    }
+
+    .option {
+        display: block;
+        padding: 10px 20px;
+        margin-bottom: 10px;
+        background: linear-gradient(49deg, rgba(10, 51, 53, 0.779),rgba(10, 65, 58, 0.687),rgba(5, 60, 77, 0.674),rgba(5, 23, 77, 0.674),rgba(71, 3, 108, 0.591));
+        /* background-color: #218585; */
+        color: white;
+        text-decoration: none;
+        border-radius: 4px;
+        text-align: center;
+    }
+    .option:hover {
+        background-color: #218585;
+    }
+    .btn {
+        display: block;
+        margin: 20px auto; /* Adjust the margin as needed */
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        background-color: #45a049;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h2 style="text-align: center;">Asset return</h2>
+    
+    <label for="assetvalue">Select Asset:</label>
+    <select id="assetvalue"></select>
+
+    <br><br>
+
+    <label for="friendvalue">Select Friend:</label>
+    <select id="friendvalue"></select>
+
+    <br><br>
+
+    <a href="#" class="option" id="returnLink">Return Now</a>
+</div>
+
+
+<script>
+    // Function to populate asset dropdown using AJAX
+    function populateAssetDropdown() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "../be/return_getssuedList.jsp", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var assets = JSON.parse(xhr.responseText);
+                var assetDropdown = document.getElementById("assetvalue");
+                assets.forEach(function(asset) {
+                    var option = document.createElement("option");
+                    option.text = asset.assetname;
+                    option.value = asset.assetid; // Set the value to the asset ID
+                    assetDropdown.add(option);
+                });
+            }
+        };
+        xhr.send();
+    }
+
+    // Function to populate friend dropdown using AJAX
+    function populateFriendDropdown() {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "../be/return_getfriendList.jsp", true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var friends = JSON.parse(xhr.responseText);
+                var friendsDropdown = document.getElementById("friendvalue");
+                friends.forEach(function(friend) {
+                    var option = document.createElement("option");
+                    option.text = friend.fname;
+                    option.value = friend.fid;
+                    friendsDropdown.add(option);
+                });
+            }
+        };
+        xhr.send();
+    }
+
+     // Function to Receive asset
+     function returnAsset() {
+        var assetvalue = document.getElementById("assetvalue").value;
+        var friendvalue = document.getElementById("friendvalue").value;
+
+        if (assetvalue && friendvalue) {
+            // Perform AJAX request to update asset status
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "../be/return_confirm.jsp", true);
+            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    // Redirect to confirmation page after successful update
+                    //window.location.href = "assetreturnconfirm.html";
+                    alert("Asset Received Successfully.");
+                }
+            };
+
+            alert("assetid=" + assetvalue + "&friendid=" + friendvalue);
+        xhr.send("assetid=" + assetvalue + "&friendid=" + friendvalue); // Send asset ID
+        } else {
+            alert("Please select both asset and friend.");
+        }
+    } 
+       
+    // Call the functions to populate dropdowns
+    populateAssetDropdown();
+    populateFriendDropdown();
+
+    // Attach click event handler to return link
+    document.getElementById("returnLink").addEventListener("click", function(event) {
+        event.preventDefault();
+        returnAsset();
+    });
+</script>
+
+</body>
+</html>
